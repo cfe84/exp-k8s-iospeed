@@ -4,6 +4,8 @@ deployment:
     - type: storage account
       name: standardStorage
       sku: Standard_LRS
+      containers:
+        - speedtest
     - type: storage account
       name: premiumStorage
       sku: Premium_LRS

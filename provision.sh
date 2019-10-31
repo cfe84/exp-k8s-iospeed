@@ -86,6 +86,8 @@ az group create --name $DEFAULT_RESOURCE_GROUP --location $LOCATION --query "pro
 echo "Creating storage account $STANDARDSTORAGE_STORAGE_ACCOUNT"
 az storage account create --name $STANDARDSTORAGE_STORAGE_ACCOUNT --kind StorageV2 --sku Standard_LRS --location $LOCATION -g $DEFAULT_RESOURCE_GROUP --https-only true --query "provisioningState" -o tsv
 STANDARDSTORAGE_STORAGE_ACCOUNT_CONNECTION_STRING=`az storage account show-connection-string -g $DEFAULT_RESOURCE_GROUP -n $STANDARDSTORAGE_STORAGE_ACCOUNT --query connectionString -o tsv`
+echo "Creating container $STANDARDSTORAGE_STORAGE_ACCOUNT.speedtest"
+az storage container create --name "speedtest" --account-name $STANDARDSTORAGE_STORAGE_ACCOUNT --query "created" -o tsv
 
 echo "Creating storage account $PREMIUMSTORAGE_STORAGE_ACCOUNT"
 az storage account create --name $PREMIUMSTORAGE_STORAGE_ACCOUNT --kind FileStorage --sku Premium_LRS --location $LOCATION -g $DEFAULT_RESOURCE_GROUP --https-only true --query "provisioningState" -o tsv

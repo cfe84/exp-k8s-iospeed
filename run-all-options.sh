@@ -53,36 +53,41 @@ fi
 COMMON_PARAMETERS="--output $RESULT_FILE --testConfigFiles $FILE_COUNT --testConfigIterations $ITERATIONS --testConfigFilesize $FILE_SIZE"
 
 # ACI
-./run.sh --name "$BASENAME-aci" --virtualnodes true $COMMON_PARAMETERS
+# ./run.sh --name "$BASENAME-aci" --virtualnodes true $COMMON_PARAMETERS
 
 COMMON_PARAMETERS="$COMMON_PARAMETERS --hideHeader true"
 
-# On agent
-POOLS="d2sv3 d2v3 ds2v2 ds3v2"
-for POOL in $POOLS; do
-    ./run.sh --name "$BASENAME-agent-$POOL" --poolName "$POOL" $COMMON_PARAMETERS 
-done
+# # On agent
+# POOLS="d2sv3 d2v3 ds2v2 ds3v2"
+# for POOL in $POOLS; do
+#     ./run.sh --name "$BASENAME-agent-$POOL" --poolName "$POOL" $COMMON_PARAMETERS 
+# done
 
 COMMON_PARAMETERS="$COMMON_PARAMETERS --poolName agentpool"
 
-# Fileshare standard
-./run.sh --name "$BASENAME-fileshare-standard" \
-    --shareName $SHARE_NAME --accountName $STANDARDSTORAGE_STORAGE_ACCOUNT \
-    --accountKey $STANDARD_STORAGE_ACCOUNT_KEY --testfile /storage/folder \
-    --storageName standard $COMMON_PARAMETERS
+# # Fileshare standard
+# ./run.sh --name "$BASENAME-fileshare-standard" \
+#     --shareName $SHARE_NAME --accountName $STANDARDSTORAGE_STORAGE_ACCOUNT \
+#     --accountKey $STANDARD_STORAGE_ACCOUNT_KEY --testfile /storage/folder \
+#     --storageName standard $COMMON_PARAMETERS
 
-# Fileshare premium
-./run.sh --name "$BASENAME-fileshare-premium" \
-    --shareName $SHARE_NAME --accountName $PREMIUMSTORAGE_STORAGE_ACCOUNT \
-    --accountKey $PREMIUM_STORAGE_ACCOUNT_KEY --testfile /storage/folder \
-    --storageName premium $COMMON_PARAMETERS
+# # Fileshare premium
+# ./run.sh --name "$BASENAME-fileshare-premium" \
+#     --shareName $SHARE_NAME --accountName $PREMIUMSTORAGE_STORAGE_ACCOUNT \
+#     --accountKey $PREMIUM_STORAGE_ACCOUNT_KEY --testfile /storage/folder \
+#     --storageName premium $COMMON_PARAMETERS
 
-# Disk standard
-./run.sh --name "$BASENAME-disk-standard" \
-    --diskSku default \
-    --testfile /storage/test $COMMON_PARAMETERS
+# # Disk standard
+# ./run.sh --name "$BASENAME-disk-standard" \
+#     --diskSku default \
+#     --testfile /storage/test $COMMON_PARAMETERS
     
-# Disk premium
-./run.sh --name "$BASENAME-disk-premium" \
-    --diskSku managed-premium \
-    --testfile /storage/test $COMMON_PARAMETERS
+# # Disk premium
+# ./run.sh --name "$BASENAME-disk-premium" \
+#     --diskSku managed-premium \
+#     --testfile /storage/test $COMMON_PARAMETERS
+
+./run.sh --name "$BASENAME-blobfuse" \
+    --blobfuseAccountName $STANDARDSTORAGE_STORAGE_ACCOUNT \
+    --blobfuseAccountKey $STANDARD_STORAGE_ACCOUNT_KEY \
+    $COMMON_PARAMETERS
