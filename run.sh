@@ -51,7 +51,7 @@ echo -ne "\r🔎  Retrieving pod name of job \e[3m$JOB_NAME\e[0m                
 
 POD_NAME="$(kubectl -n $NAMESPACE get pods -o json | jq ".items[] | select(.metadata.labels[\"job-name\"] == \"$JOB_NAME\") | .metadata.name" -r)"
 echo -ne "\r📃  Grabbing logs (\e[3mpod $POD_NAME\e[0m)        "
-kubectl logs $POD_NAME >> "$OUTPUT_FILE"
+kubectl -n $NAMESPACE logs $POD_NAME >> "$OUTPUT_FILE"
 echo -ne "\r🧹  Job \e[3m$JOB_NAME\e[0m done, cleaning up                          "
 $COMMAND | kubectl delete -f - > /dev/null
 echo -ne "\r✔  Job \e[3m$JOB_NAME\e[0m complete                                   "
