@@ -53,6 +53,22 @@ spec:
         persistentVolumeClaim:
           claimName: {{ .Values.name }}-{{ .Values.diskSku }}-pvc
 {{ end }}
+{{ if .Values.blobfuseAccountName }}
+        volumeMounts:
+            - name: data-blobfuse
+              mountPath: /storage
+      volumes:
+      - name: data-blobfuse
+        flexVolume:
+          driver: "azure/blobfuse"
+          readOnly: false
+          secretRef:
+            name: {{ .Values.name }}-{{ .Values.blobfuseAccountName }}-config
+          options:
+            container: speedtest
+            tmppath: /tmp
+            mountoptions: "--file-cache-timeout-in-seconds=120"
+{{ end }}
 {{ if .Values.virtualnodes }}
       nodeSelector:
         kubernetes.io/role: agent
