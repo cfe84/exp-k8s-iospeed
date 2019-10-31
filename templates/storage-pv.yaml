@@ -1,0 +1,40 @@
+{{ if .Values.shareName }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.name }}-{{ .Values.storageName }}-pv
+  namespace: {{ .Values.ns }}
+spec:
+  capacity:
+    storage: 15Gi
+  accessModes:
+    - ReadWriteMany
+  azureFile:
+    secretName: {{ .Values.name }}-{{ .Values.storageName }}-config
+    shareName: {{ .Values.shareName }}
+    readOnly: false
+  mountOptions:
+    - dir_mode=0777
+    - file_mode=0777
+    - uid=10000
+    - gid=10000
+    - mfsymlinks
+    - nobrl
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Values.name }}-{{ .Values.storageName }}-pvc
+  namespace: {{ .Values.ns }}
+spec:
+  accessModes:
+    - ReadWriteMany
+  mountOptions:
+  resources:
+    requests:
+      storage: 15Gi
+  storageClassName: ""
+  volumeName: {{ .Values.name }}-{{ .Values.storageName }}-pv
+{{ end }}

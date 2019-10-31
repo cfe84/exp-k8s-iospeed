@@ -1,0 +1,14 @@
+{{ if .Values.diskSku }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "{{ .Values.name }}-{{ .Values.diskSku }}-pvc"
+  namespace: {{ .Values.ns }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: {{ .Values.diskSku }}
+  resources:
+    requests:
+      storage: 5Gi
+{{ end }}

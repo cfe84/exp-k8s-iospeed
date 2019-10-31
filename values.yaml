@@ -1,0 +1,17 @@
+ns: io-speed-test
+name: speedtest-onhost
+parallelism: 1
+serviceName: io-speed-test
+storageName: storage
+testfile: test
+virtualnodes: false
+accountName:
+accountKey:
+shareName:
+sync: fsync
+diskSku:
+image: cfe84/diskiops
+hideHeader: false
+testConfigFiles: "10"
+testConfigIterations: "10"
+testConfigFilesize: "1Mb"

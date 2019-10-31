@@ -1,0 +1,44 @@
+deployment:
+  location: centralus
+  resources:
+    - type: storage account
+      name: standardStorage
+      sku: Standard_LRS
+    - type: storage account
+      name: premiumStorage
+      sku: Premium_LRS
+      kind: FileStorage
+    - type: disk
+      name: standardDisk
+      sku: Standard_LRS
+    - type: disk
+      name: premiumDisk
+      sku: Premium_LRS
+    - type: snippet
+      name: Create share
+      declaration: SHARE_NAME=speedtest
+      provisioning: |
+        echo "Creating share"
+        az storage share create \
+          --account-name $STANDARDSTORAGE_STORAGE_ACCOUNT \
+          --name $SHARE_NAME -o tsv --query created
+        az storage share create \
+          --account-name $PREMIUMSTORAGE_STORAGE_ACCOUNT \
+          --name $SHARE_NAME -o tsv --query created
+      env: |
+        STANDARD_STORAGE_ACCOUNT_KEY=`az storage account keys list \
+          --account-name $STANDARDSTORAGE_STORAGE_ACCOUNT \
+          --query [0].value \
+          -o tsv`
+        PREMIUM_STORAGE_ACCOUNT_KEY=`az storage account keys list \
+          --account-name $PREMIUMSTORAGE_STORAGE_ACCOUNT \
+          --query [0].value \
+          -o tsv`
+    - type: snippet
+      name: Authorize AKS cluster
+      provisioning: |
+        echo "Authorizing AKS cluster to access the disk:"
+        read -p "AKS cluster name >" AKS_CLUSTER_NAME
+        read -p "AKS resource group >" AKS_RESOURCE_GROUP
+        CLIENT_ID=$(az aks show --name $AKS_CLUSTER_NAME -g $AKS_RESOURCE_GROUP --query servicePrincipalProfile.clientId -o tsv)
+        az role assignment create --role Contributor --resource-group $DEFAULT_RESOURCE_GROUP --assignee $CLIENT_ID --query roleDefinitionName -o tsv

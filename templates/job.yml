@@ -1,0 +1,77 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.ns }}
+spec:
+  completions: {{ .Values.parallelism }}
+  parallelism: {{ .Values.parallelism }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.serviceName }}
+    spec:
+      restartPolicy: Never
+      containers: 
+      - name: {{ .Values.serviceName }}
+        imagePullPolicy: Always
+        image: {{ .Values.image }}
+        env:
+        - name: TESTFILE
+          value: "{{ .Values.testfile }}"
+        - name: SYNC
+          value: "{{ .Values.sync }}"
+        - name: FOLDER
+          value: "{{ .Values.testfile }}"
+        - name: ITERATIONS
+          value: "{{ .Values.testConfigIterations }}"
+        - name: FILE_COUNT
+          value: "{{ .Values.testConfigFiles }}"
+        - name: FILE_SIZE
+          value: "{{ .Values.testConfigFilesize }}"
+        - name: FORMAT
+          value: "csv"
+        - name: RUN_NAME
+          value: "{{ .Values.name }}"
+        - name: HIDE_HEADER
+          value: "{{ .Values.hideHeader }}"
+{{ if .Values.shareName }}
+        volumeMounts:
+        - name: data-storage
+          mountPath: /storage
+      volumes:
+      - name: data-storage
+        persistentVolumeClaim:
+          claimName: {{ .Values.name }}-{{ .Values.storageName }}-pvc
+{{ end }}
+{{ if .Values.diskSku }}
+        volumeMounts:
+        - name: data-disk
+          mountPath: /storage
+      volumes:
+      - name: data-disk
+        persistentVolumeClaim:
+          claimName: {{ .Values.name }}-{{ .Values.diskSku }}-pvc
+{{ end }}
+{{ if .Values.virtualnodes }}
+      nodeSelector:
+        kubernetes.io/role: agent
+        beta.kubernetes.io/os: linux
+        type: virtual-kubelet
+      tolerations:
+      - key: virtual-kubelet.io/provider
+        operator: Exists
+      - key: azure.com/aci
+        effect: NoSchedule
+{{ else if .Values.poolName }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: agentpool
+                operator: In
+                values:
+                - {{ .Values.poolName }}
+{{ end }}
+  backoffLimit: 1
