@@ -10,11 +10,11 @@ title() {
     echo -e "${bold}${RUN_NAME}${normal}"
 }
 
-# title "Medium files"
-# source run-all-options.sh --name $NAME -i 10 -f 10 -s 1Mb
+title "Medium files"
+source run-all-options.sh --name $NAME -i 10 -f 10 -s 1Mb
 
-# title "Small files"
-# source run-all-options.sh --name $NAME -i 10 -f 100 -s 100kb
+title "Small files"
+source run-all-options.sh --name $NAME -i 10 -f 100 -s 100kb
 
 title "Very small files"
 source run-all-options.sh --name $NAME -i 10 -f 1000 -s 10kb
