@@ -1,8 +1,10 @@
 #! /bin/bash
 
+NAMESPACE=io-speed-test
+
 function jobIsRunning() {
     local JOB_NAME="$1"
-    COMPLETION_TIME=$(kubectl get job "$JOB_NAME" -o json | \
+    COMPLETION_TIME=$(kubectl -n $NAMESPACE get job "$JOB_NAME" -o json | \
         jq ".status.completionTime")
     if [ "$COMPLETION_TIME" = "null" ]; then
         echo "true"
@@ -47,7 +49,7 @@ done
 
 echo -ne "\r🔎  Retrieving pod name of job \e[3m$JOB_NAME\e[0m                                         \r"
 
-POD_NAME="$(kubectl get pods -o json | jq ".items[] | select(.metadata.labels[\"job-name\"] == \"$JOB_NAME\") | .metadata.name" -r)"
+POD_NAME="$(kubectl -n $NAMESPACE get pods -o json | jq ".items[] | select(.metadata.labels[\"job-name\"] == \"$JOB_NAME\") | .metadata.name" -r)"
 echo -ne "\r📃  Grabbing logs (\e[3mpod $POD_NAME\e[0m)        "
 kubectl logs $POD_NAME >> "$OUTPUT_FILE"
 echo -ne "\r🧹  Job \e[3m$JOB_NAME\e[0m done, cleaning up                          "
