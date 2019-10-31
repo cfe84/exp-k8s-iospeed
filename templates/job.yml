@@ -74,4 +74,4 @@ spec:
                 values:
                 - {{ .Values.poolName }}
 {{ end }}
-  backoffLimit: 1
+  backoffLimit: 2
