@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace DiskIO
@@ -10,15 +9,17 @@ namespace DiskIO
 
 
         Params param;
+        IFile fileDriver;
         public Runner(Params p)
         {
             this.param = p;
+            fileDriver = p.FileDriver;
         }
 
         public async Task<RunResults> RunAsync()
         {
             RunResults results = new RunResults(param);
-            CreateFolder(param.Folder);
+            await CreateFolderAsync(param.Folder);
             var files = CreateFileNames(param.Folder, "test1", param.FileCount);
             results.WriteResults = await WriteFiles(files, param.Iterations, param.FileSizeInBytes);
             results.ReadResults = await ReadFiles(files, param.Iterations, param.FileSizeInBytes);
@@ -26,11 +27,11 @@ namespace DiskIO
             return results;
         }
 
-        private void CreateFolder(string folder)
+        private async Task CreateFolderAsync(string folder)
         {
-            if (!Directory.Exists(folder))
+            if (!await this.fileDriver.DirectoryExistsAsync(folder))
             {
-                Directory.CreateDirectory(folder);
+                await this.fileDriver.CreateDirectoryAsync(folder);
             }
         }
 
@@ -39,16 +40,16 @@ namespace DiskIO
             var res = new string[fileCount];
             for (int i = 0; i < fileCount; i++)
             {
-                res[i] = Path.Combine(folder, $"{stem}-{i}.txt");
+                res[i] = fileDriver.CombinePath(folder, $"{stem}-{i}.txt");
             }
             return res;
         }
 
-        private void DeleteFiles(string[] files)
+        private async Task DeleteFilesAsync(string[] files)
         {
             foreach (string file in files)
             {
-                File.Delete(file);
+                await fileDriver.DeleteAsync(file);
             }
         }
 
@@ -63,11 +64,11 @@ namespace DiskIO
                 for (int i = 0; i < files.Length; i++)
                 {
                     var watch = Stopwatch.StartNew();
-                    await File.WriteAllBytesAsync(files[i], content);
+                    await fileDriver.WriteAllBytesAsync(files[i], content);
                     watch.Stop();
                     timings[i + loopCount * files.Length] = watch.Elapsed;
                 }
-                DeleteFiles(files);
+                await DeleteFilesAsync(files);
             }
             return new TimingsAggregate(timings, fileSizeInBytes);
         }
@@ -78,7 +79,7 @@ namespace DiskIO
         {
             var content = new byte[fileSizeInBytes];
             for (int i = 0; i < files.Length; i++)
-                await File.WriteAllBytesAsync(files[i], content);
+                await fileDriver.WriteAllBytesAsync(files[i], content);
         }
 
         private async Task<TimingsAggregate> ReadFiles(string[] files,
@@ -92,11 +93,11 @@ namespace DiskIO
                 for (int i = 0; i < files.Length; i++)
                 {
                     var watch = Stopwatch.StartNew();
-                    var content = await File.ReadAllBytesAsync(files[i]);
+                    var content = await fileDriver.ReadAllBytesAsync(files[i]);
                     watch.Stop();
                     timings[i + loopCount * files.Length] = watch.Elapsed;
                 }
-                DeleteFiles(files);
+                await DeleteFilesAsync(files);
             }
             return new TimingsAggregate(timings, fileSizeInBytes);
         }
@@ -112,12 +113,12 @@ namespace DiskIO
                 for (int i = 0; i < files.Length; i++)
                 {
                     var watch = Stopwatch.StartNew();
-                    await File.WriteAllBytesAsync(files[i], content);
-                    var ctt = await File.ReadAllBytesAsync(files[i]);
+                    await fileDriver.WriteAllBytesAsync(files[i], content);
+                    var ctt = await fileDriver.ReadAllBytesAsync(files[i]);
                     watch.Stop();
                     timings[i + loopCount * files.Length] = watch.Elapsed;
                 }
-                DeleteFiles(files);
+                await DeleteFilesAsync(files);
             }
 
             return new TimingsAggregate(timings, fileSizeInBytes);

@@ -35,6 +35,12 @@ spec:
           value: "{{ .Values.name }}"
         - name: HIDE_HEADER
           value: "{{ .Values.hideHeader }}"
+{{ if eq .Values.driver "blob" }}
+        - name: FILE_DRIVER
+          value: "{{ .Values.driver }}"
+        - name: CONNECTION_STRING
+          value: "{{ .Values.storageConnectionString}}"
+{{ end }}
 {{ if .Values.shareName }}
         volumeMounts:
         - name: data-storage

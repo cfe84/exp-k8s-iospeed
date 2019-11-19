@@ -1,5 +1,6 @@
 ns: io-speed-test
 name: speedtest-onhost
+driver: fs
 parallelism: 1
 serviceName: io-speed-test
 storageName: storage

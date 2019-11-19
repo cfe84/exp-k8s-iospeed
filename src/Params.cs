@@ -5,6 +5,7 @@ namespace DiskIO
 {
     internal class Params
     {
+        public IFile FileDriver { get; set; }
         public int Iterations { get; set; }
         public string Folder { get; set; }
         public int FileCount { get; set; }
@@ -37,8 +38,24 @@ namespace DiskIO
             result.FileSizeInBytes = parseSize(Environment.GetEnvironmentVariable("FILE_SIZE"));
             result.Format = Environment.GetEnvironmentVariable("FORMAT");
             result.HideHeader = Environment.GetEnvironmentVariable("HIDE_HEADER") == "true";
+            result.FileDriver = LoadDriver(Environment.GetEnvironmentVariable("FILE_DRIVER"));
             return result;
         }
+
+        private static IFile LoadDriver(string driverName)
+        {
+            switch (driverName)
+            {
+                case "blob":
+                    var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+                    var containerName = Environment.GetEnvironmentVariable("CONTAINER_NAME") ?? "speedtest";
+                    return new BlobStorageFile(connectionString, containerName);
+                case "fs":
+                default:
+                    return new FsFile();
+            }
+        }
+
         internal static Params Parse(string[] args)
         {
             var result = new Params();
